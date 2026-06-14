@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scramble Scape</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #87CEEB;
+    }
+
+    /* Sky */
+    .sky {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #87CEEB 0%, #B8E4F9 70%, #C8F0FF 100%);
+      z-index: 0;
+    }
+
+    /* Sun */
+    .sun {
+      position: fixed;
+      top: 40px;
+      right: 100px;
+      width: 70px;
+      height: 70px;
+      background: #FFD700;
+      box-shadow: 0 0 0 10px #FFF176, 0 0 40px #FFD700;
+      z-index: 1;
+    }
+
+    /* Clouds */
+    .cloud {
+      position: fixed;
+      background: white;
+      border-radius: 50px;
+      opacity: 0.85;
+      z-index: 1;
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+    .cloud1 { width: 100px; height: 35px; top: 60px; left: 80px; }
+    .cloud1::before { width: 50px; height: 50px; top: -25px; left: 10px; }
+    .cloud1::after { width: 35px; height: 35px; top: -15px; left: 45px; }
+    .cloud2 { width: 80px; height: 28px; top: 100px; left: 350px; }
+    .cloud2::before { width: 40px; height: 40px; top: -20px; left: 8px; }
+    .cloud2::after { width: 30px; height: 30px; top: -12px; left: 38px; }
+
+    /* Mountains */
+    .mountains {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 320px;
+      z-index: 1;
+    }
+    .mountain1 { position: absolute; bottom: 0; left: -50px; width: 0; height: 0; border-left: 210px solid transparent; border-right: 210px solid transparent; border-bottom: 300px solid #5D8A3C; }
+    .mountain1::after { content: ''; position: absolute; bottom: -300px; left: -80px; width: 0; height: 0; border-left: 80px solid transparent; border-right: 80px solid transparent; border-bottom: 100px solid white; opacity: 0.6; }
+    .mountain2 { position: absolute; bottom: 0; left: 220px; width: 0; height: 0; border-left: 260px solid transparent; border-right: 260px solid transparent; border-bottom: 340px solid #4A7A2E; }
+    .mountain3 { position: absolute; bottom: 0; right: -50px; width: 0; height: 0; border-left: 230px solid transparent; border-right: 230px solid transparent; border-bottom: 300px solid #5D8A3C; }
+    .mountain4 { position: absolute; bottom: 0; right: 260px; width: 0; height: 0; border-left: 190px solid transparent; border-right: 190px solid transparent; border-bottom: 260px solid #6B9E45; }
+
+    /* Ground */
+    .ground {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 65px;
+      background: #5D8A3C;
+      z-index: 2;
+    }
+    .ground::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 12px;
+      background: #6BBF47;
+    }
+
+    /* Floating Letters */
+    .floating-letters {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .letter {
+      position: absolute;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.55);
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      border: 4px solid #4A7A2E;
+      box-shadow: 6px 6px 0px #4A7A2E;
+      padding: 35px 30px;
+      max-width: 520px;
+      margin: 60px auto;
+      text-align: center;
+    }
+
+    .game-title {
+      font-size: 1.2rem;
+      color: #4A7A2E;
+      margin-bottom: 6px;
+    }
+
+    .level-badge {
+      font-size: 0.45rem;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    .scrambled-word {
+      font-size: 1.6rem;
+      color: #2E7D32;
+      background: #F1F8E9;
+      border: 3px dashed #4A7A2E;
+      padding: 16px;
+      margin: 20px 0;
+      letter-spacing: 6px;
+    }
+
+    input {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.6rem;
+      padding: 12px;
+      width: 100%;
+      border: 3px solid #4A7A2E;
+      margin-top: 10px;
+      outline: none;
+      text-align: center;
+    }
+
+    input:focus {
+      border-color: #FFD700;
+      box-shadow: 0 0 8px #FFD70088;
+    }
+
+    .btn {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.6rem;
+      padding: 14px 20px;
+      margin-top: 14px;
+      border: 3px solid;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.1s;
+    }
+
+    .btn:active { transform: translate(3px, 3px); box-shadow: none !important; }
+
+    .btn-submit {
+      background: #C8F5C8;
+      color: #2E7D32;
+      border-color: #2E7D32;
+      box-shadow: 4px 4px 0px #2E7D32;
+    }
+
+    .btn-next {
+      background: #FFF9C4;
+      color: #F57F17;
+      border-color: #F57F17;
+      box-shadow: 4px 4px 0px #F57F17;
+      display: none;
+    }
+
+    .btn-home {
+      background: #FFCDD2;
+      color: #C62828;
+      border-color: #C62828;
+      box-shadow: 4px 4px 0px #C62828;
+      display: none;
+      text-decoration: none;
+      display: none;
+    }
+
+    .message {
+      font-size: 0.55rem;
+      margin-top: 14px;
+      min-height: 20px;
+      color: #333;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="sky"></div>
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<div class="floating-letters" id="floatingLetters"></div>
+
+<div class="mountains">
+  <div class="mountain1"></div>
+  <div class="mountain2"></div>
+  <div class="mountain3"></div>
+  <div class="mountain4"></div>
+</div>
+<div class="ground"></div>
+
+<div class="card">
+  <h1 class="game-title">🏔️ ScrambleScape</h1>
+  <p class="level-badge" id="levelBadge">🟢 Level 1 — Easy</p>
+
+  <div class="scrambled-word" id="word">...</div>
+
+  <input type="text" id="input" placeholder="type your answer">
+  <button class="btn btn-submit" onclick="submitAnswer()">Submit ➜</button>
+  <button class="btn btn-next" id="btnNext" onclick="nextLevel()">Next Level ➜</button>
+  <a href="/" class="btn btn-home" id="btnHome">🏠 Play Again</a>
+
+  <p class="message" id="message"></p>
+</div>
+
+<script>
+  let currentLevel = 0;
+  let currentWord = "";
+
+  const badges = ["🟢 Level 1 — Easy", "🟡 Level 2 — Medium", "🔴 Level 3 — Hard"];
+
+  // Floating letters
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const container = document.getElementById("floatingLetters");
+  for (let i = 0; i < 20; i++) {
+    const span = document.createElement("span");
+    span.className = "letter";
+    span.innerText = letters[Math.floor(Math.random() * letters.length)];
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.animationDuration = (6 + Math.random() * 10) + "s";
+    span.style.animationDelay = (Math.random() * 5) + "s";
+    container.appendChild(span);
+  }
+
+  async function loadWord() {
+    document.getElementById("message").innerText = "";
+    document.getElementById("btnNext").style.display = "none";
+    document.getElementById("btnHome").style.display = "none";
+    document.getElementById("levelBadge").innerText = badges[currentLevel];
+
+    const res = await fetch(`/word/${currentLevel}`);
+    const data = await res.json();
+    currentWord = data.word;
+
+    let scrambled = currentWord.split("").sort(() => Math.random() - 0.5).join("");
+    while (scrambled === currentWord) {
+      scrambled = currentWord.split("").sort(() => Math.random() - 0.5).join("");
+    }
+
+    document.getElementById("word").innerText = scrambled.toUpperCase();
+    document.getElementById("input").value = "";
+  }
+
+  async function submitAnswer() {
+    const answer = document.getElementById("input").value.trim();
+    if (!answer) return;
+
+    const res = await fetch("/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `answer=${answer}&correctWord=${currentWord}&level=${currentLevel}`
+    });
+
+    const data = await res.json();
+    document.getElementById("message").innerText = data.message;
+
+    if (data.success) {
+      if (data.nextLevel === -1) {
+        document.getElementById("word").innerText = "🏆";
+        document.getElementById("btnHome").style.display = "block";
+      } else {
+        currentLevel = data.nextLevel;
+        document.getElementById("btnNext").style.display = "block";
+      }
+    } else {
+      setTimeout(loadWord, 1000);
+    }
+  }
+
+  function nextLevel() {
+    document.getElementById("btnNext").style.display = "none";
+    loadWord();
+  }
+
+  loadWord();
+</script>
+
+</body>
+</html>
